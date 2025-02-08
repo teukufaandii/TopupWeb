@@ -3,20 +3,20 @@ import Image from "next/image";
 import { useState } from "react";
 
 const Sidenav = () => {
-  const [open, setOpen] = useState(false);
 
   const menu = [
     {
       id: 1,
-      name: "All Courses",
+      name: "All Games",
+      icon: Gamepad
     },
     {
       id: 2,
-      name: "Membership",
+      name: "History",
     },
     {
       id: 3,
-      name: "Be Instructor",
+      name: "Profile",
     },
   ];
   return (
