@@ -4,8 +4,7 @@ const DiscountSchema = new mongoose.Schema({
   code: String,
   percentage: Number,
   expiresAt: Date,
-  createdAt: { type: Date, default: Date.now },
-});
+}, { timestamps: true });
 
 const Discount = mongoose.model("Discount", DiscountSchema);
 
