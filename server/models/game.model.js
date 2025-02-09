@@ -6,16 +6,12 @@ const gameSchema = new mongoose.Schema(
     name: { type: String, required: true, unique: true },
     slug: { type: String, unique: true },
     description: { type: String },
+    isPopular: { type: Boolean, default: false },
     image: {
       type: String,
       default: "https://via.placeholder.com/300",
     },
-    categories: [
-      {
-        type: String,
-        enum: ["monthly-pass", "weekly-pass", "in-game-currency"],
-      },
-    ],
+    items: [{ type: mongoose.Schema.Types.ObjectId, ref: "Item" }],
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
