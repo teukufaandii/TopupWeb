@@ -7,7 +7,7 @@ export const protectRoutes = async (req, res, next) => {
     if (!accessToken) {
       return res
         .status(401)
-        .json({ message: "Unauthorized - No token provided" });
+        .json({ message: "Unauthorized - AWOKAOWKOAWKAOKW" });
     }
 
     try {
