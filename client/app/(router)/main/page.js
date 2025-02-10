@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import Banner from "./_components/Banner";
+import Banner from "../../_components/Banner";
 import {
   Card,
   CardContent,
