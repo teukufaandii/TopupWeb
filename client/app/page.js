@@ -1,5 +1,6 @@
+"use client";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 import Banner from "./_components/Banner";
 import {
   Card,
@@ -9,8 +10,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import LoadingSpinner from "./_components/LoadingSpinner";
+import { useUserContext } from "./(store)/useUserContext";
 
 const Page = () => {
+
+  const { checkAuth, checkingAuth } = useUserContext();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth])
+
+  if(checkingAuth){
+    return <LoadingSpinner/>
+  }
+
   const gameList = [
     {
       id: 1,

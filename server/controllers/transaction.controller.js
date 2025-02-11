@@ -8,6 +8,8 @@ export const createTransaction = async (req, res) => {
     const { item_id } = req.params;
     const userId = req.user._id;
 
+    const invoice_id = "INV-" + Math.random().toString(36).slice(2).toUpperCase();
+
     const item = await Item.findById(item_id);
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
@@ -17,6 +19,7 @@ export const createTransaction = async (req, res) => {
 
     const transaction = await Transaction.create({
       userId,
+      invoiceId: invoice_id,
       itemId: item_id,
       itemPrice: total,
     });
@@ -27,15 +30,10 @@ export const createTransaction = async (req, res) => {
       req.user
     );
 
-    await Transaction.findByIdAndUpdate(transaction._id, {
-      status: midtransResponse.status_code,
-      midtransToken: midtransResponse.token,
-      midtransUrl: midtransResponse.redirect_url,
-    });
-
     res.status(201).json({
       message: "Transaction created successfully",
       midtransResponse,
+      transaction
     });
   } catch (error) {
     console.error("Error creating transaction:", error);
@@ -88,14 +86,29 @@ export const midtransCallback = async (req, res) => {
 };
 
 export const getUserTransactions = async (req, res) => {
-    try {
-        const userId = req.user._id;
-        const transactions = await Transaction.find({ userId }).populate("itemId");
-        res.status(200).json({ transactions });
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+  try {
+    const userId = req.user._id;
+    const transactions = await Transaction.find({ userId }).populate("itemId");
+    res.status(200).json({ transactions });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const getInvoiceById = async (req, res) => {
+  try {
+    const { invoiceId } = req.params;
+    const invoice = await Transaction.findOne({ invoiceId }).populate("itemId");
+
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" });
     }
-}
+
+    res.status(200).json({ invoice });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 
 const calculateTotalPrice = (item) => {
   if (item.isDiscount) {

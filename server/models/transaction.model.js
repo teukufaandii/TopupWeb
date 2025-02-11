@@ -12,6 +12,7 @@ const transactionSchema = new mongoose.Schema(
       ref: "Item",
       required: true,
     },
+    invoiceId: { type: String, required: true, unique: true, index: true },
     itemPrice: { type: Number, required: true },
     status: {
       type: String,

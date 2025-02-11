@@ -58,21 +58,28 @@ export const login = async (req, res) => {
       setCookies(res, accessToken, refreshToken);
 
       res.json({
+        success: true,
         user: {
           _id: user._id,
-          name: user.name,
+          username: user.username,
+          token: accessToken,
+          isVerified: user.isVerified,
           email: user.email,
           role: user.role,
         },
         message: "User logged in successfully",
       });
     } else {
-      res.status(401).json({ message: "Invalid email or password" });
+      res
+        .status(401)
+        .json({ message: "Invalid email or password", success: false });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error in login controller", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error in login controller",
+      error: error.message,
+    });
   }
 };
 
@@ -127,6 +134,8 @@ export const signup = async (req, res) => {
       user: {
         _id: user._id,
         name: user.name,
+        isVerified: user.isVerified,
+        token: accessToken,
         email: user.email,
         role: user.role,
       },
@@ -204,6 +213,109 @@ export const getProfile = async (req, res) => {
     res.json(req.user);
   } catch (error) {
     console.log("Error in getProfile controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { username, email, phone } = req.body;
+
+    if (!username || !email || !phone) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const existingUser = await User.findOne({
+      $or: [{ username }, { email }],
+      _id: { $ne: req.user._id },
+    });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "Username or email already in use" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: { username, email, phoneNumber: phone } },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      user: updatedUser,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    console.log("Error in updateProfile controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid current password" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({
+          message: "New password and confirmation password do not match",
+        });
+    }
+
+    if (newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters long" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.log("Error in changePassword controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const checkEmailVerified = async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+
+    const checkVerify = await User.findOne({
+      email: userEmail,
+      isVerified: true,
+    });
+
+    if (checkVerify) {
+      res
+        .status(200)
+        .json({ verified: true, message: "Email already verified" });
+    } else {
+      res.status(200).json({ verified: false, message: "Email not verified" });
+    }
+  } catch (error) {
+    console.log("Error in checkEmailVerified controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
