@@ -6,6 +6,7 @@ import {
   signup,
   getProfile,
   updateProfile,
+  changePassword,
 } from "../controllers/auth.controller.js";
 import { protectRoutes } from "../middleware/auth.middleware.js";
 import apiKeyAuth from "../middleware/apiKeyAuth.js";
@@ -19,5 +20,6 @@ router.post("/refresh-token", apiKeyAuth, refreshToken);
 
 router.get("/profile", protectRoutes, getProfile);
 router.put("/profile", protectRoutes, updateProfile);
+router.put("/profile/password", protectRoutes, changePassword);
 
 export default router;

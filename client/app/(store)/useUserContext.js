@@ -49,10 +49,10 @@ export const useUserContext = create((set) => ({
 
   login: async ({ email, password }) => {
     set({ loading: true });
-  
+
     try {
       const res = await axios.post("/auth/login", { email, password });
-  
+
       if (res.data.success === true) {
         set({
           user: res.data.user,
@@ -105,6 +105,20 @@ export const useUserContext = create((set) => ({
     } catch (error) {
       console.log(error);
       set({ checkingAuth: false, user: null });
+    }
+  },
+
+  updatePassword: async ({ currentPassword, newPassword, confirmPassword }) => {
+    try {
+      const res = await axios.put("/auth/profile/password", {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+      set({ user: null });
+      toast.success(res.data.message);
+    } catch (error) {
+      toast.error(error.response.data.message || "An error occurred");
     }
   },
 }));

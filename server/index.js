@@ -8,7 +8,6 @@ import { dbConnect } from "./lib/dbConnect.js";
 // Import routes
 import authRoutes from "./routes/auth.route.js";
 import gameRoutes from "./routes/game.route.js";
-import itemRoutes from "./routes/item.route.js";
 import transactionRoutes from "./routes/transaction.route.js";
 import adminRoutes from "./routes/admin.route.js";
 
@@ -24,7 +23,6 @@ app.use(cors({
 
 app.use("/api/auth", authRoutes);
 app.use("/api/games", gameRoutes);
-app.use("/api/items", itemRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/admin", adminRoutes);
 

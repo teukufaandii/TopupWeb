@@ -58,7 +58,6 @@ export const searchGames = async (req, res) => {
           isActive: true,
           $or: [
             { name: { $regex: q, $options: "i" } },
-            { description: { $regex: q, $options: "i" } },
           ],
         },
       },
@@ -88,5 +87,20 @@ export const searchGames = async (req, res) => {
     res
       .status(500)
       .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+export const getItemsBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const games = await Game.find({ slug }).populate("items");
+
+    if (!games) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+    res.status(200).json({ games });
+  } catch (error) {
+    console.log("Error in getItemsBySlug controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

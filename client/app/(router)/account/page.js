@@ -12,7 +12,7 @@ import { useUserContext } from "@/app/(store)/useUserContext";
 const SettingsPage = () => {
   // unfinished issue: data is removed when refresh
 
-  const { user, updateUser, isEmailVerified } = useUserContext();
+  const { user, updateUser, isEmailVerified, updatePassword } = useUserContext();
   const router = useRouter();
 
   const [username, setUsername] = useState(user?.username || "");
@@ -41,11 +41,7 @@ const SettingsPage = () => {
 
   const handlePasswordChange = (e) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      alert("Password baru dan konfirmasi password tidak cocok");
-      return;
-    }
-    console.log("Password changed successfully");
+    updatePassword({ currentPassword, newPassword, confirmPassword });
   };
 
   const handleImageChange = (e) => {
@@ -59,7 +55,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="bg-gray-800 min-h-screen py-10">
+    <div className="bg-gray-800 min-h-screen pb-10">
       {/* Banner */}
       <div className="relative w-full h-64 mb-10">
         <Image
