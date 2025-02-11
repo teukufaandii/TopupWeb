@@ -37,7 +37,7 @@ export const getGamesByPopularity = async (req, res) => {
       },
     ]).allowDiskUse(true);
 
-    res.status(200).json({ games });
+    res.status(200).json({ popularGames: games });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
     console.error(error);

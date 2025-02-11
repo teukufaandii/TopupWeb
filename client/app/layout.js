@@ -31,10 +31,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black min-h-screen flex items-center justify-center`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-800 min-h-screen flex items-center justify-center`}
       >
         {checkingAuth ? (
-          <div className="flex flex-col items-center justify-center h-screen bg-black text-green-400">
+          <div className="flex flex-col items-center justify-center h-screen bg-gray-800 text-green-400">
             <motion.div
               className="w-14 h-14 border-4 border-green-400 border-t-transparent rounded-full animate-spin"
               animate={{ rotate: 360 }}
@@ -45,7 +45,7 @@ export default function RootLayout({ children }) {
         ) : (
           <div className="w-full h-full text-green-400">
             {shouldRenderHeader && <Header />}
-            <main className="bg-gradient-to-b from-black to-black/95 min-h-screen">
+            <main className="bg-gradient-to-b from-gray-800 min-h-screen">
               {children}
             </main>
             <Toaster />
