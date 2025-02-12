@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 
 export const useUserContext = create((set) => ({
   user: null,
+  userImage: null,
   loading: false,
   checkingAuth: true,
   isEmailVerified: null,
@@ -30,6 +31,7 @@ export const useUserContext = create((set) => ({
           username,
           email,
           password,
+          confirmPassword,
           phoneNumber,
         },
         {
@@ -43,7 +45,7 @@ export const useUserContext = create((set) => ({
       toast.success(res.data.message);
     } catch (error) {
       set({ loading: false });
-      toast.error("Something went wrong, please try again later");
+      toast.error(error.response.data.message || "Signup failed");
     }
   },
 
@@ -119,6 +121,26 @@ export const useUserContext = create((set) => ({
       toast.success(res.data.message);
     } catch (error) {
       toast.error(error.response.data.message || "An error occurred");
+    }
+  },
+
+  uploadImage: async ({ image }) => {
+    try {
+      set({ loading: true });
+      const res = await axios.post(
+        "/auth/upload-profile-image",
+        { image },
+        {
+          headers: {
+            "x-api-key": process.env.NEXT_PUBLIC_API_KEY,
+          },
+        }
+      );
+      set({ loading: false });
+      toast.success(res.data.message);
+      set({ userImage: res.data.image });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Upload gagal");
     }
   },
 }));

@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import { redis } from "../lib/redis.js";
 import jwt from "jsonwebtoken";
+import cloudinary from "../lib/cloudinary.js";
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign(
@@ -274,11 +275,9 @@ export const changePassword = async (req, res) => {
     }
 
     if (newPassword !== confirmPassword) {
-      return res
-        .status(400)
-        .json({
-          message: "New password and confirmation password do not match",
-        });
+      return res.status(400).json({
+        message: "New password and confirmation password do not match",
+      });
     }
 
     if (newPassword.length < 6) {
@@ -294,6 +293,41 @@ export const changePassword = async (req, res) => {
     res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
     console.log("Error in changePassword controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const uploadProfileImage = async (req, res) => {
+  try {
+    const { image } = req.body;
+    let cloudinaryRes = null;
+
+    if (image) {
+      cloudinaryRes = await cloudinary.uploader.upload(image, {
+        folder: "users",
+      });
+    } else {
+      return res.status(400).json({ message: "Image is required" });
+    }
+
+    const imageLink = cloudinaryRes?.secure_url ? cloudinaryRes.secure_url : "";
+
+    const user = await User.findById(req.user._id);
+    user.image = imageLink;
+    await user.save();
+
+    const imageRes = {
+      imageLink,
+    };
+
+    res
+      .status(200)
+      .json({
+        message: "Profile image uploaded successfully",
+        image: imageRes,
+      });
+  } catch (error) {
+    console.log("Error in uploadProfileImage controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
