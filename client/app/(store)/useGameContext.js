@@ -33,7 +33,7 @@ export const useGameContext = create((set) => ({
     try {
       set({ loading: true });
       const res = await axios.get(`/games/${slug}`);
-      set({ game: res.data.games, loading: false });
+      set({ game: res.data.games[0] || null, loading: false });
     } catch (error) {
       set({ loading: false });
       toast.error(error.response.data.message || "An error occurred");
@@ -42,12 +42,12 @@ export const useGameContext = create((set) => ({
 
   getGamesByPopularity: async () => {
     try {
-        set({ loading: true });
-        const res = await axios.get("/games/popular");
-        set({ popularGame: res.data.popularGames, loading: false });
+      set({ loading: true });
+      const res = await axios.get("/games/popular");
+      set({ popularGame: res.data.popularGames, loading: false });
     } catch (error) {
-        set({ loading: false });
-        toast.error(error.response.data.message || "An error occurred");
+      set({ loading: false });
+      toast.error(error.response.data.message || "An error occurred");
     }
-  }
+  },
 }));

@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { useGameContext } from '@/app/(store)/useGameContext';
+import React, { useEffect } from "react";
+import { useParams } from "next/navigation";
+import { useGameContext } from "@/app/(store)/useGameContext";
+import Image from "next/image";
+import { DollarSign, Shield, ShieldPlus, ThumbsUp } from "lucide-react";
 
 const GameDetailPage = () => {
   const params = useParams();
@@ -43,69 +45,67 @@ const GameDetailPage = () => {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Game Image */}
-          <div className="relative">
-            {game.image && (
-              <img
-                src={game.image}
-                alt={game.name}
-                className="w-full h-auto rounded-lg shadow-lg"
-              />
-            )}
-          </div>
+      <div className="relative w-full h-[200px] md:h-[300px] overflow-hidden">
+        <Image
+          src={game.image}
+          alt="Game Banner"
+          layout="intrinsic"
+          width={1920}
+          height={400}
+          objectFit="cover"
+          className="shadow-lg"
+        />
+      </div>
 
-          {/* Game Details */}
-          <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-100">{game?.name || 'Game Name' }</h1>
-            <p className="text-gray-300">{game?.description || 'Game Description' }</p>
-
-            {/* Additional game details */}
-            <div className="space-y-4">
-              <div className="bg-gray-800 p-4 rounded-lg">
-                <h2 className="text-xl font-semibold text-gray-100 mb-2">Detail Game</h2>
-                <div className="space-y-2">
-                  <p className="text-gray-300">
-                    <span className="font-medium">Status:</span>{' '}
-                    {game.isActive ? 'Aktif' : 'Tidak Aktif'}
-                  </p>
-                  <p className="text-gray-300">
-                    <span className="font-medium">Popular:</span>{' '}
-                    {game.isPopular ? 'Ya' : 'Tidak'}
-                  </p>
-                  <p className="text-gray-300">
-                    <span className="font-medium">Dibuat pada:</span>{' '}
-                    {new Date(game.createdAt).toLocaleDateString()}
-                  </p>
-                  <p className="text-gray-300">
-                    <span className="font-medium">Diperbarui pada:</span>{' '}
-                    {new Date(game.updatedAt).toLocaleDateString()}
-                  </p>
-                </div>
+      {/* TITLE WRAPPER */}
+      <div className="flex min-h-32 w-full items-center border-b bg-gradient-to-br from-green-600 to-green-800 lg:min-h-[160px]">
+        <div className="container flex items-center gap-6 mx-auto px-2 h-[160px]">
+          {/* IMAGE */}
+          <div>
+            <div className="flex items-start gap-4">
+              <div className="relative -top-28">
+                <Image
+                  loading="lazy"
+                  src={game.image}
+                  height={300}
+                  width={300}
+                  alt="Game Banner"
+                  sizes="100vw"
+                  className="z-20 -mb-14 aspect-square w-32 h-32 rounded-2xl object-cover shadow-2xl md:-mb-20 md:w-60"
+                />
               </div>
-
-              {/* Items Section */}
-              {game.items && game.items.length > 0 && (
-                <div className="bg-gray-800 p-4 rounded-lg">
-                  <h2 className="text-xl font-semibold text-gray-100 mb-2">Items</h2>
-                  <div className="space-y-2">
-                    {game.items.map((item, index) => (
-                      <div key={index} className="text-gray-300">
-                        <p>
-                          <span className="font-medium">Nama Item:</span> {item.name}
-                        </p>
-                        <p>
-                          <span className="font-medium">Harga:</span> Rp{' '}
-                          {item.price?.toLocaleString('id-ID')}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
+          {/* TITLE AND DETAILS */}
+          <div className="py-4 sm:py-0">
+            <h1 className="text-xs font-bold text-gray-300 uppercase leading-7 tracking-wider sm:text-lg">
+              {game.name}
+            </h1>
+            <p className="text-xs text-gray-300 font-medium sm:text-base/6">
+              {game.description}
+            </p>
+            <div className="mt-4 flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:gap-8 sm:text-sm/6">
+              <div className="flex items-center gap-2">
+                <ThumbsUp size={16} />
+                <span className="text-sm/7 font-medium text-gray-300">Terpercaya</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield size={16} />
+                <span className="text-sm/7 font-medium text-gray-300">Aman</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <DollarSign size={16} />
+                <span className="text-sm/7 font-medium text-gray-300">Murah</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto px-4 py-8">
+        {/* WRAPPER */}
+        <div className="mt-4 lg:mt-8">
+          {/* FORM SECTION */}
+          <div className="col-span-3 col-start-1 flex flex-col gap-4 lg:col-span-2 lg:gap-8"></div>
         </div>
       </div>
     </>

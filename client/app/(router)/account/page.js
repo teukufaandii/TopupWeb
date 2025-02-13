@@ -10,8 +10,14 @@ import { Upload, Loader2 } from "lucide-react";
 import { useUserContext } from "@/app/(store)/useUserContext";
 
 const SettingsPage = () => {
-  const { user, loading, updateUser, isEmailVerified, updatePassword, uploadImage } =
-    useUserContext();
+  const {
+    user,
+    loading,
+    updateUser,
+    isEmailVerified,
+    updatePassword,
+    uploadImage,
+  } = useUserContext();
   const router = useRouter();
 
   const [username, setUsername] = useState("");
@@ -154,7 +160,51 @@ const SettingsPage = () => {
                 className="bg-gray-700 text-white border-gray-600"
                 required
               />
-              <Button type="submit" className="bg-green-500 hover:bg-green-600 w-full">
+              <Button
+                type="submit"
+                className="bg-green-500 hover:bg-green-600 w-full"
+              >
+                Simpan Perubahan
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Change Password Form */}
+        <Card className="bg-gray-900 border border-gray-700 p-5">
+          <CardHeader>
+            <CardTitle className="text-gray-100">Ubah Password</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <Input
+                type="password"
+                placeholder="Password Sekarang"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="bg-gray-700 text-white border-gray-600"
+                required
+              />
+              <Input
+                type="password"
+                placeholder="Password Baru"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="bg-gray-700 text-white border-gray-600"
+                required
+              />
+              <Input
+                type="password"
+                placeholder="Konfirmasi Password Baru"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="bg-gray-700 text-white border-gray-600"
+                required
+              />
+              <Button
+                type="submit"
+                className="bg-green-500 hover:bg-green-600 w-full"
+              >
                 Simpan Perubahan
               </Button>
             </form>

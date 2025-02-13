@@ -261,6 +261,14 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    if (currentPassword === newPassword) {
+      return res
+        .status(400)
+        .json({
+          message: "New password cannot be the same as current password",
+        });
+    }
+
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -301,6 +309,7 @@ export const uploadProfileImage = async (req, res) => {
   try {
     const { image } = req.body;
     let cloudinaryRes = null;
+    const user = await User.findById(req.user._id);
 
     if (image) {
       cloudinaryRes = await cloudinary.uploader.upload(image, {
@@ -310,9 +319,18 @@ export const uploadProfileImage = async (req, res) => {
       return res.status(400).json({ message: "Image is required" });
     }
 
+    if (user.image) {
+      const publicId = user.image.split("/").pop().split(".")[0];
+      try {
+        await cloudinary.uploader.destroy(`users/${publicId}`);
+        console.log("deleted image from cloduinary");
+      } catch (error) {
+        console.log("error deleting image from cloduinary", error);
+      }
+    }
+
     const imageLink = cloudinaryRes?.secure_url ? cloudinaryRes.secure_url : "";
 
-    const user = await User.findById(req.user._id);
     user.image = imageLink;
     await user.save();
 
@@ -320,12 +338,10 @@ export const uploadProfileImage = async (req, res) => {
       imageLink,
     };
 
-    res
-      .status(200)
-      .json({
-        message: "Profile image uploaded successfully",
-        image: imageRes,
-      });
+    res.status(200).json({
+      message: "Profile image uploaded successfully",
+      image: imageRes,
+    });
   } catch (error) {
     console.log("Error in uploadProfileImage controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });

@@ -28,10 +28,7 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const success = login({ email, password });
-    if (success) {
-      router.push("/");
-    }
+    login({ email, password });
   };
 
   // Jika pengguna sudah login, tampilkan loading atau tidak tampilkan apa-apa

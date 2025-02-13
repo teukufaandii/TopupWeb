@@ -6,7 +6,7 @@ const apiKeyAuth = (req, res, next) => {
     if (apiKey && apiKey === API_KEY) {
       next();
     } else {
-      res.status(401).json({ error: "Unauthorized: Invalid API Key" });
+      res.status(401).json({ error: "Unauthorized: You can't access this api" });
     }
   } else if (process.env.NODE_ENV === "development") {
     next();
