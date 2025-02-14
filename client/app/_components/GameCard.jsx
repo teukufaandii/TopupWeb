@@ -12,7 +12,7 @@ const GameCard = () => {
     getAllGames();
   }, [getAllGames]);
 
-  const gameList = game ? game : [];
+  const gameList = Array.isArray(game) ? game : [];
 
   if (loading) {
     return <div>Loading...</div>;

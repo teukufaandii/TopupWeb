@@ -15,7 +15,7 @@ const HotGamesCard = () => {
     return <div>Loading...</div>;
   }
 
-  const gameList = popularGame ? popularGame : [];
+  const popularGameList = popularGame ? popularGame : [];
   
   return (
     <div className="max-w-screen-2xl mx-auto px-5">
@@ -28,7 +28,7 @@ const HotGamesCard = () => {
 
       {/* Game Card */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-        {gameList.map((game) => (
+        {popularGameList.map((game) => (
           <Link href={`/game/${game.slug}`} key={game._id} className="w-full">
             <Card className="hover:shadow-lg transition-all duration-300 flex flex-row items-center p-4 gap-4 bg-gray-800 border border-gray-700 hover:border-green-500 hover:bg-gray-700 rounded-lg">
               <Image

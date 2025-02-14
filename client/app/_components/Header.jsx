@@ -148,7 +148,7 @@ const Header = () => {
 
   return (
     <>
-      <div className={`sticky top-0 left-0 w-full p-4 transition-all duration-300 z-50 ${isScrolled ? "bg-gray/80 backdrop-blur-md shadow-md" : "bg-gray-900"}`}>
+      <div className={`sticky top-0 left-0 w-full p-4 transition-all duration-300 z-50 ${isScrolled ? "bg-black/80 backdrop-blur-md shadow-md" : "bg-gray-900"}`}>
         <div className="max-w-screen-2xl mx-auto flex justify-between gap-5 items-center px-5">
           {/* LOGO */}
           <div className="flex items-center">

@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useUserContext } from "./(store)/useUserContext";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
+import Footer from "./_components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,6 +49,7 @@ export default function RootLayout({ children }) {
             <main className="bg-gradient-to-b from-gray-800 min-h-screen">
               {children}
             </main>
+            <Footer />
             <Toaster />
           </div>
         )}

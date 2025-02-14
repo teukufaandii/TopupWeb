@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { toast } from "react-hot-toast";
 
 export const useGameContext = create((set) => ({
-  game: null,
+  game: [],
   popularGame: null,
   loading: false,
 
@@ -11,7 +11,7 @@ export const useGameContext = create((set) => ({
     try {
       set({ loading: true });
       const res = await axios.get("/games");
-      set({ game: res.data.games, loading: false });
+      set({ game: res.data.games || [], loading: false });
     } catch (error) {
       set({ loading: false });
       toast.error(error.response.data.message || "An error occurred");
