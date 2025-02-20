@@ -1,13 +1,14 @@
 "use client";
 
+import ErrorCard from "@/app/_components/ErrorCard";
 import {
   Copy,
   LucideBadgeCheck,
   LucideClock,
-  LucideLoader,
   Printer,
   RefreshCcw,
 } from "lucide-react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import React from "react";
 
@@ -22,13 +23,24 @@ const InvoiceDetail = () => {
     phone: "123-456-7890",
     address: "123 Main St, City, Country",
     items: [
-      { name: "Item 1", price: 10.99 },
-      { name: "Item 2", price: 5.99 },
+      { name: "Item 1", price: 152000 },
+      { name: "Item 2", price: 200000 },
     ],
-    itemPrice: 10.99,
+    image:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKJGpOfd7CaO1ZchWLK-Q-wiAmahDcMEWGxw&s",
+    itemPrice: 123000,
+    totalPrice: 123000,
     status: "success",
     createdAt: "2022-01-01T00:00:00.000Z",
   };
+
+  if (!invoiceDetails) {
+    return (
+      <div>
+        <ErrorCard errorType={"data_not_found"} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-screen-2xl mx-auto py-3">
@@ -103,8 +115,53 @@ const InvoiceDetail = () => {
                   {/* SUCCESS */}
                   <div className="p-3 bg-[#4CAF50] text-gray-100 flex flex-row gap-2 flex-1 justify-center rounded-lg">
                     <LucideBadgeCheck className="w-5 h-5 sm:skew-x-[16deg]" />
-                    <span className="text-sm font-semibold line-clamp-1 sm:skew-x-[16deg]">Success</span>
+                    <span className="text-sm font-semibold line-clamp-1 sm:skew-x-[16deg]">
+                      Success
+                    </span>
                   </div>
+                </div>
+                <div className="flex flex-col-reverse md:flex-row gap-4">
+                  <div className="flex flex-col gap-3 basis-4/12 md:max-w-xs">
+                    <div className="flex sm:flex-row flex-col justify-between gap-2">
+                      <div className="flex flex-col basis-3/4">
+                        <span>
+                          <Image
+                            src={invoiceDetails.image}
+                            width={150}
+                            height={150}
+                            alt="Invoice"
+                          />
+                        </span>
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <span className="flex flex-col sm:text-lg text-sm font-semibold line-clamp-2">
+                          {invoiceDetails.name}
+                        </span>
+                        <span className="flex flex-col opacity-60 text-sm  line-clamp-2">
+                          {invoiceDetails.phone}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col flex-1 gap-2">
+                      <div className="flex flex-row justify-between rounded-sm">
+                        <span className="flex flex-col text-sm flex-1">
+                          Harga Layanan:{" "}
+                        </span>
+                        <span className="flex flex-col text-sm font-semibold text-right">
+                          Rp. {invoiceDetails.itemPrice}
+                        </span>
+                      </div>
+                      <div className="flex flex-row justify-between rounded-sm ">
+                        <span className="flex flex-col text-sm flex-1 text-green-500 font-semibold">
+                          Total Bayar:
+                        </span>
+                        <span className="flex flex-col text-sm font-semibold text-right">
+                          Rp. {invoiceDetails.totalPrice}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex sm:flex-row flex-col flex-1 gap-2"></div>
                 </div>
               </div>
             </div>
