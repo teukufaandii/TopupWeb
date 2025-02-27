@@ -161,7 +161,68 @@ const InvoiceDetail = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex sm:flex-row flex-col flex-1 gap-2"></div>
+                  <div className="flex sm:flex-row flex-col flex-1 gap-2">
+                    <div className="flex flex-col basis-6/12 gap-2">
+                      <div className="flex flex-1 flex-col w-full max-h-48">
+                        <div className="flex flex-col relative  w-full max-h-48 items-center justify-center aspect-square">
+                          <Image
+                            src="/success.png"
+                            width={150}
+                            height={150}
+                            alt="status"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col flex-1 gap-2 justify-between">
+                      <div className="flex flex-col flex-1 gap-1">
+                        <div className="flex sm:flex-row flex-col justify-between rounded-sm">
+                          <div className="flex flex-row justify-center sm:justify-start w-full basis-5/12 bg-[#21222e] p-2">
+                            <span className="text-xs font-semibold">Data</span>
+                          </div>
+                          <div className="flex flex-row justify-center sm:justify-start w-full flex-1 bg-[#ffffff] p-2 text-lightColor font-semibold">
+                            <span className="text-xs font-semibold text-black">
+                              {invoiceDetails.name}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex sm:flex-row flex-col justify-between rounded-sm">
+                          <div className="flex flex-row justify-center sm:justify-start w-full basis-5/12 bg-[#21222e] p-2">
+                            <span className="text-xs font-semibold">No. Whatsapp</span>
+                          </div>
+                          <div className="flex flex-row justify-center sm:justify-start w-full flex-1 bg-[#ffffff] p-2 text-lightColor font-semibold">
+                            <span className="text-xs font-semibold text-black">
+                              {invoiceDetails.name}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex sm:flex-row flex-col justify-between rounded-sm">
+                          <div className="flex flex-row justify-center sm:justify-start w-full basis-5/12 bg-[#21222e] p-2">
+                            <span className="text-xs font-semibold">Pembayaran</span>
+                          </div>
+                          <div className="flex flex-row justify-center sm:justify-start w-full flex-1 bg-[#ffffff] p-2 text-lightColor font-semibold">
+                            <Image
+                              src="/qris.png"
+                              width={200}
+                              height={150}
+                              alt="status"
+                              className="w-fit h-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex sm:flex-row flex-col justify-between rounded-sm">
+                          <div className="flex flex-row justify-center sm:justify-start w-full basis-5/12 bg-[#21222e] p-2">
+                            <span className="text-xs font-semibold">Status</span>
+                          </div>
+                          <div className="flex flex-row justify-center sm:justify-start w-full flex-1 bg-[#ffffff] p-2 text-lightColor font-semibold">
+                            <span className="text-xs font-semibold text-black">
+                              {invoiceDetails.name}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

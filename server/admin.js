@@ -13,10 +13,7 @@ dotenv.config();
 
 AdminJS.registerAdapter({ Database, Resource });
 
-await mongoose.connect(process.env.MONGO_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+await mongoose.connect(process.env.MONGO_URL);
 
 const admin = new AdminJS({
   resources: [User, Transaction, Item, Game],
