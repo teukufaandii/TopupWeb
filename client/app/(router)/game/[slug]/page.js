@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useGameContext } from "@/app/(store)/useGameContext";
@@ -13,6 +12,7 @@ import {
   Plus,
   Shield,
   ThumbsUp,
+  Tag,
 } from "lucide-react";
 
 const GameDetailPage = () => {
@@ -28,21 +28,31 @@ const GameDetailPage = () => {
     }
   }, [params.slug, getGameBySlug]);
 
-  const imagePlaceholder =
-    "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=";
+  // Use a default image if game item doesn't have one
+  const imagePlaceholder = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=";
 
-  const dummyItems = [
-    { id: 1, name: "Item 1", price: 10.99 },
-    { id: 2, name: "Item 2", price: 5.99 },
-    { id: 3, name: "Item 3", price: 15.99 },
-    { id: 4, name: "Item 4", price: 8.99 },
-    { id: 5, name: "Item 5", price: 12.99 },
-    { id: 6, name: "Item 6", price: 7.99 },
-    { id: 7, name: "Item 7", price: 9.99 },
-    { id: 8, name: "Item 8", price: 14.99 },
-    { id: 9, name: "Item 9", price: 6.99 },
-    { id: 10, name: "Item 10", price: 11.99 },
-  ];
+  // Format currency with Indonesian Rupiah (IDR)
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  // Calculate discounted price
+  const calculateDiscountedPrice = (item) => {
+    if (!item.isDiscount) return item.price;
+    
+    if (item.discount === "percentage") {
+      return item.price - (item.price * (item.discountValue / 100));
+    } else if (item.discount === "fixed") {
+      return item.price - item.discountValue;
+    }
+    
+    return item.price;
+  };
 
   const handleQuantityChange = (value) => {
     const newQuantity = Number(value);
@@ -65,7 +75,7 @@ const GameDetailPage = () => {
     console.log({
       selectedItem,
       quantity,
-      totalPrice: selectedItem ? (selectedItem.price * quantity).toFixed(2) : 0,
+      totalPrice: selectedItem ? (calculateDiscountedPrice(selectedItem) * quantity) : 0,
     });
   };
 
@@ -97,10 +107,8 @@ const GameDetailPage = () => {
           <Image
             src={game.image}
             alt="Game Banner"
-            layout="intrinsic"
             width={1920}
             height={400}
-            objectFit="cover"
             className="shadow-lg"
           />
         )}
@@ -219,7 +227,6 @@ const GameDetailPage = () => {
                     </div>
                   </div>
                 </FormSection>
-
                 <FormSection title="Pilih Item" number={2}>
                   <div className="flex flex-col space-y-4">
                     <section className="pb-4 text-sm/6 font-semibold text-card-foreground">
@@ -228,34 +235,43 @@ const GameDetailPage = () => {
                   </div>
                   <div>
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3">
-                      {dummyItems.map((item) => (
+                      {game.items && game.items.map((item) => (
                         <div
-                          key={item.id}
+                          key={item._id}
                           onClick={() => setSelectedItem(item)}
                           role="radio"
-                          aria-checked={selectedItem?.id === item.id}
-                          className={`relative flex min-h-[85px] cursor-pointer rounded-xl border p-2.5 text-muted-foreground shadow-sm outline-none md:p-4 bg-order-variant-background text-order-variant-foreground transition-all
-                            ${
-                              selectedItem?.id === item.id
-                                ? "border-primary border-2"
-                                : "border-transparent hover:border-primary/50"
-                            }`}
+                          aria-checked={selectedItem?._id === item._id}
+                          className={`relative flex min-h-[85px] cursor-pointer rounded-xl border p-2.5 text-muted-foreground shadow-sm outline-none md:p-4 bg-order-variant-background text-order-variant-foreground transition-all ${
+                            selectedItem?._id === item._id
+                              ? "border-primary border-2"
+                              : "border-transparent hover:border-primary/50"
+                          }`}
                         >
                           <span className="flex flex-1">
                             <span className="flex flex-col justify-start">
                               <span className="block text-xs font-semibold">
                                 {item.name}
                               </span>
-                              <div>
-                                <span className="mt-1 flex items-center text-[11px] font-semibold text-muted-foreground/60">
-                                  ${item.price}
+                              <div className="flex flex-col">
+                                {item.isDiscount && (
+                                  <span className="mt-1 flex items-center text-[11px] font-semibold line-through text-muted-foreground/60">
+                                    {formatPrice(item.price)}
+                                  </span>
+                                )}
+                                <span className={`flex items-center text-[11px] font-semibold ${item.isDiscount ? "text-red-500" : "text-muted-foreground/60"}`}>
+                                  {formatPrice(calculateDiscountedPrice(item))}
                                 </span>
                               </div>
                             </span>
                           </span>
+                          {item.isDiscount && (
+                            <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full px-2 py-1 font-bold">
+                              {item.discountValue}% OFF
+                            </div>
+                          )}
                           <div className="flex aspect-square w-8 items-center">
                             <Image
-                              src={imagePlaceholder}
+                              src={item.image || imagePlaceholder}
                               alt={item.name}
                               width={32}
                               height={32}
@@ -267,7 +283,6 @@ const GameDetailPage = () => {
                     </div>
                   </div>
                 </FormSection>
-
                 <FormSection title="Masukkan Jumlah Pembelian" number={3}>
                   <div className="flex items-center gap-x-4">
                     <div className="flex-1">
@@ -301,7 +316,6 @@ const GameDetailPage = () => {
                     </div>
                   </div>
                 </FormSection>
-
                 <FormSection title={"Detail Kontak"} number={4}>
                   <div className="overflow-hidden p-4">
                     <div className="flex flex-col gap-3">
@@ -316,11 +330,12 @@ const GameDetailPage = () => {
                             </span>
                           </button>
                           <input
-                          type="tel"
-                          value={phone}
-                          placeholder="628XXXXXXXXXX"
-                          onChange={(e) => setPhone(e.target.value)}
-                          className="flex h-9 w-full rounded-md border border-input bg-input px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 md:text-sm rounded-e-lg rounded-s-none PhoneInputInput"></input>
+                            type="tel"
+                            value={phone}
+                            placeholder="628XXXXXXXXXX"
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="flex h-9 w-full rounded-md border border-input bg-input px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 md:text-sm rounded-e-lg rounded-s-none PhoneInputInput"
+                          ></input>
                         </div>
                         <span className="text-xxs italic text-card-foreground">
                           **Nomor ini akan dihubungi jika terjadi masalah
@@ -330,16 +345,27 @@ const GameDetailPage = () => {
                   </div>
                 </FormSection>
               </div>
-
               <div className="fixed inset-x-0 bottom-0 z-40 block w-full space-y-4 rounded-t-md bg-secondary p-4">
                 <div className="rounded-lg border border-dashed bg-secondary text-sm text-secondary-foreground">
                   <div className="flex flex-col h-[4em] items-center justify-center text-center text-xs p-2">
                     {selectedItem ? (
                       <>
                         <div className="font-semibold">{selectedItem.name}</div>
-                        <div className="text-primary">
-                          ${selectedItem.price}
+                        <div className="flex items-center gap-2">
+                          {selectedItem.isDiscount && (
+                            <span className="line-through text-muted-foreground/60">
+                              {formatPrice(selectedItem.price)}
+                            </span>
+                          )}
+                          <span className={`${selectedItem.isDiscount ? "text-red-500" : "text-primary"}`}>
+                            {formatPrice(calculateDiscountedPrice(selectedItem))}
+                          </span>
                         </div>
+                        {quantity > 1 && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Total: {formatPrice(calculateDiscountedPrice(selectedItem) * quantity)}
+                          </div>
+                        )}
                       </>
                     ) : (
                       "Belum ada item yang dipilih"
