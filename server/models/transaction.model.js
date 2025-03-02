@@ -19,6 +19,7 @@ const transactionSchema = new mongoose.Schema(
       enum: ["pending", "success", "failed"],
       default: "pending",
     },
+    game_uid: { type: String },
     payment_method: { type: String },
     midtransToken: { type: String },
     midtransUrl: { type: String },

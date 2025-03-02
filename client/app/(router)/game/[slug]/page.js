@@ -29,28 +29,29 @@ const GameDetailPage = () => {
   }, [params.slug, getGameBySlug]);
 
   // Use a default image if game item doesn't have one
-  const imagePlaceholder = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=";
+  const imagePlaceholder =
+    "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=";
 
   // Format currency with Indonesian Rupiah (IDR)
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(price);
   };
 
   // Calculate discounted price
   const calculateDiscountedPrice = (item) => {
     if (!item.isDiscount) return item.price;
-    
+
     if (item.discount === "percentage") {
-      return item.price - (item.price * (item.discountValue / 100));
+      return item.price - item.price * (item.discountValue / 100);
     } else if (item.discount === "fixed") {
       return item.price - item.discountValue;
     }
-    
+
     return item.price;
   };
 
@@ -75,7 +76,9 @@ const GameDetailPage = () => {
     console.log({
       selectedItem,
       quantity,
-      totalPrice: selectedItem ? (calculateDiscountedPrice(selectedItem) * quantity) : 0,
+      totalPrice: selectedItem
+        ? calculateDiscountedPrice(selectedItem) * quantity
+        : 0,
     });
   };
 
@@ -235,51 +238,60 @@ const GameDetailPage = () => {
                   </div>
                   <div>
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3">
-                      {game.items && game.items.map((item) => (
-                        <div
-                          key={item._id}
-                          onClick={() => setSelectedItem(item)}
-                          role="radio"
-                          aria-checked={selectedItem?._id === item._id}
-                          className={`relative flex min-h-[85px] cursor-pointer rounded-xl border p-2.5 text-muted-foreground shadow-sm outline-none md:p-4 bg-order-variant-background text-order-variant-foreground transition-all ${
-                            selectedItem?._id === item._id
-                              ? "border-primary border-2"
-                              : "border-transparent hover:border-primary/50"
-                          }`}
-                        >
-                          <span className="flex flex-1">
-                            <span className="flex flex-col justify-start">
-                              <span className="block text-xs font-semibold">
-                                {item.name}
-                              </span>
-                              <div className="flex flex-col">
-                                {item.isDiscount && (
-                                  <span className="mt-1 flex items-center text-[11px] font-semibold line-through text-muted-foreground/60">
-                                    {formatPrice(item.price)}
-                                  </span>
-                                )}
-                                <span className={`flex items-center text-[11px] font-semibold ${item.isDiscount ? "text-red-500" : "text-muted-foreground/60"}`}>
-                                  {formatPrice(calculateDiscountedPrice(item))}
+                      {game.items &&
+                        game.items.map((item) => (
+                          <div
+                            key={item._id}
+                            onClick={() => setSelectedItem(item)}
+                            role="radio"
+                            aria-checked={selectedItem?._id === item._id}
+                            className={`relative flex min-h-[85px] cursor-pointer rounded-xl border p-2.5 text-muted-foreground shadow-sm outline-none md:p-4 bg-order-variant-background text-order-variant-foreground transition-all ${
+                              selectedItem?._id === item._id
+                                ? "border-primary border-2"
+                                : "border-transparent hover:border-primary/50"
+                            }`}
+                          >
+                            <span className="flex flex-1">
+                              <span className="flex flex-col justify-start">
+                                <span className="block text-xs font-semibold">
+                                  {item.name}
                                 </span>
-                              </div>
+                                <div className="flex flex-col">
+                                  {item.isDiscount && (
+                                    <span className="mt-1 flex items-center text-[11px] font-semibold line-through text-muted-foreground/60">
+                                      {formatPrice(item.price)}
+                                    </span>
+                                  )}
+                                  <span
+                                    className={`flex items-center text-[11px] font-semibold ${
+                                      item.isDiscount
+                                        ? "text-red-500"
+                                        : "text-muted-foreground/60"
+                                    }`}
+                                  >
+                                    {formatPrice(
+                                      calculateDiscountedPrice(item)
+                                    )}
+                                  </span>
+                                </div>
+                              </span>
                             </span>
-                          </span>
-                          {item.isDiscount && (
-                            <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full px-2 py-1 font-bold">
-                              {item.discountValue}% OFF
+                            {item.isDiscount && (
+                              <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full px-2 py-1 font-bold">
+                                {item.discountValue}% OFF
+                              </div>
+                            )}
+                            <div className="flex aspect-square w-8 items-center">
+                              <Image
+                                src={item.image || imagePlaceholder}
+                                alt={item.name}
+                                width={32}
+                                height={32}
+                                className="h-8 w-8 rounded-md object-cover"
+                              />
                             </div>
-                          )}
-                          <div className="flex aspect-square w-8 items-center">
-                            <Image
-                              src={item.image || imagePlaceholder}
-                              alt={item.name}
-                              width={32}
-                              height={32}
-                              className="h-8 w-8 rounded-md object-cover"
-                            />
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </div>
                 </FormSection>
@@ -357,13 +369,24 @@ const GameDetailPage = () => {
                               {formatPrice(selectedItem.price)}
                             </span>
                           )}
-                          <span className={`${selectedItem.isDiscount ? "text-red-500" : "text-primary"}`}>
-                            {formatPrice(calculateDiscountedPrice(selectedItem))}
+                          <span
+                            className={`${
+                              selectedItem.isDiscount
+                                ? "text-red-500"
+                                : "text-primary"
+                            }`}
+                          >
+                            {formatPrice(
+                              calculateDiscountedPrice(selectedItem)
+                            )}
                           </span>
                         </div>
                         {quantity > 1 && (
                           <div className="text-xs text-muted-foreground mt-1">
-                            Total: {formatPrice(calculateDiscountedPrice(selectedItem) * quantity)}
+                            Total:{" "}
+                            {formatPrice(
+                              calculateDiscountedPrice(selectedItem) * quantity
+                            )}
                           </div>
                         )}
                       </>
