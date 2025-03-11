@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransactionContext } from "@/app/(store)/useTransactionContext";
 import ErrorCard from "@/app/_components/ErrorCard";
 import {
   Copy,
@@ -10,36 +11,33 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 
 const InvoiceDetail = () => {
   const params = useParams();
 
-  //   const { invoice } = useTransactionContext();
+  const { transactionDetails, getTransactionByInvoice, loading, error } =
+    useTransactionContext();
 
-  const invoiceDetails = {
-    invoiceId: "INV-1234567890",
-    name: "John Doe",
-    phone: "123-456-7890",
-    address: "123 Main St, City, Country",
-    items: [
-      { name: "Item 1", price: 152000 },
-      { name: "Item 2", price: 200000 },
-    ],
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKJGpOfd7CaO1ZchWLK-Q-wiAmahDcMEWGxw&s",
-    itemPrice: 123000,
-    totalPrice: 123000,
-    status: "success",
-    createdAt: "2022-01-01T00:00:00.000Z",
-  };
+  useEffect(() => {
+    if (params.invoice) {
+      getTransactionByInvoice(params.invoice);
+    }
+  }, [params.invoice, getTransactionByInvoice]);
 
-  if (!invoiceDetails) {
-    return (
-      <div>
-        <ErrorCard errorType={"data_not_found"} />
-      </div>
-    );
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <ErrorCard errorType="api_error" message={error} />;
+  }
+
+  if (
+    !transactionDetails ||
+    (Array.isArray(transactionDetails) && transactionDetails.length === 0)
+  ) {
+    return <ErrorCard errorType="data_not_found" />;
   }
 
   return (
@@ -72,25 +70,25 @@ const InvoiceDetail = () => {
                   <div className="flex justify-between flex-1 flex-col sm:flex-row gap-2 sm:items-center">
                     <div className="flex  flex-row items-center gap-2">
                       <span className="text-xl font-semibold line-clamp-1">
-                        {invoiceDetails.invoiceId}
+                        {transactionDetails.invoiceId}
                       </span>
                       <Copy className="w-4 h-4 text-white" />
                     </div>
                     <span className="font-normal text-sm opacity-70">
-                      Tanggal Transaksi: {invoiceDetails.createdAt}
+                      Tanggal Transaksi: {transactionDetails.createdAt}
                     </span>
                   </div>
                   <div className="flex justify-between items-center flex-row gap-2 sm:items-center">
                     <span className="font-normal text-sm opacity-70"></span>
                     <div
                       className={`flex py-2 px-4 rounded-full ${
-                        invoiceDetails.status === "success"
+                        transactionDetails.status === "success"
                           ? "bg-[#0ABE5D]"
                           : "bg-red-500"
                       }`}
                     >
                       <span className="text-white font-bold text-sm">
-                        {invoiceDetails.status.toUpperCase()}
+                        {transactionDetails.status}
                       </span>
                     </div>
                   </div>
@@ -126,7 +124,7 @@ const InvoiceDetail = () => {
                       <div className="flex flex-col basis-3/4">
                         <span>
                           <Image
-                            src={invoiceDetails.image}
+                            src="/fallback-image.jpg"
                             width={150}
                             height={150}
                             alt="Invoice"
@@ -135,10 +133,10 @@ const InvoiceDetail = () => {
                       </div>
                       <div className="flex flex-col flex-1">
                         <span className="flex flex-col sm:text-lg text-sm font-semibold line-clamp-2">
-                          {invoiceDetails.name}
+                          {transactionDetails.name}
                         </span>
                         <span className="flex flex-col opacity-60 text-sm  line-clamp-2">
-                          {invoiceDetails.phone}
+                          {transactionDetails.phone_number}
                         </span>
                       </div>
                     </div>
@@ -148,7 +146,7 @@ const InvoiceDetail = () => {
                           Harga Layanan:{" "}
                         </span>
                         <span className="flex flex-col text-sm font-semibold text-right">
-                          Rp. {invoiceDetails.itemPrice}
+                          Rp. {transactionDetails.itemPrice}
                         </span>
                       </div>
                       <div className="flex flex-row justify-between rounded-sm ">
@@ -156,7 +154,7 @@ const InvoiceDetail = () => {
                           Total Bayar:
                         </span>
                         <span className="flex flex-col text-sm font-semibold text-right">
-                          Rp. {invoiceDetails.totalPrice}
+                          Rp. {transactionDetails.itemPrice}
                         </span>
                       </div>
                     </div>
@@ -182,23 +180,27 @@ const InvoiceDetail = () => {
                           </div>
                           <div className="flex flex-row justify-center sm:justify-start w-full flex-1 bg-[#ffffff] p-2 text-lightColor font-semibold">
                             <span className="text-xs font-semibold text-black">
-                              {invoiceDetails.name}
+                              {transactionDetails.game_uid}
                             </span>
                           </div>
                         </div>
                         <div className="flex sm:flex-row flex-col justify-between rounded-sm">
                           <div className="flex flex-row justify-center sm:justify-start w-full basis-5/12 bg-[#21222e] p-2">
-                            <span className="text-xs font-semibold">No. Whatsapp</span>
+                            <span className="text-xs font-semibold">
+                              No. Whatsapp
+                            </span>
                           </div>
                           <div className="flex flex-row justify-center sm:justify-start w-full flex-1 bg-[#ffffff] p-2 text-lightColor font-semibold">
                             <span className="text-xs font-semibold text-black">
-                              {invoiceDetails.name}
+                              {transactionDetails.phone_number}
                             </span>
                           </div>
                         </div>
                         <div className="flex sm:flex-row flex-col justify-between rounded-sm">
                           <div className="flex flex-row justify-center sm:justify-start w-full basis-5/12 bg-[#21222e] p-2">
-                            <span className="text-xs font-semibold">Pembayaran</span>
+                            <span className="text-xs font-semibold">
+                              Pembayaran
+                            </span>
                           </div>
                           <div className="flex flex-row justify-center sm:justify-start w-full flex-1 bg-[#ffffff] p-2 text-lightColor font-semibold">
                             <Image
@@ -212,11 +214,13 @@ const InvoiceDetail = () => {
                         </div>
                         <div className="flex sm:flex-row flex-col justify-between rounded-sm">
                           <div className="flex flex-row justify-center sm:justify-start w-full basis-5/12 bg-[#21222e] p-2">
-                            <span className="text-xs font-semibold">Status</span>
+                            <span className="text-xs font-semibold">
+                              Status
+                            </span>
                           </div>
                           <div className="flex flex-row justify-center sm:justify-start w-full flex-1 bg-[#ffffff] p-2 text-lightColor font-semibold">
                             <span className="text-xs font-semibold text-black">
-                              {invoiceDetails.name}
+                              {transactionDetails.status.toUpperCase()}
                             </span>
                           </div>
                         </div>

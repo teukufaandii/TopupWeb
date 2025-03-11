@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post("/:item_id", apiKeyAuth, protectRoutes, createTransaction);
 router.post("/midtrans/callback", midtransCallback);
-router.post("/invoice/:invoiceId", apiKeyAuth, getInvoiceById);
+router.get("/invoice/:invoiceId", apiKeyAuth, getInvoiceById);
 
 router.get("/", apiKeyAuth, protectRoutes, getUserTransactions);
 
