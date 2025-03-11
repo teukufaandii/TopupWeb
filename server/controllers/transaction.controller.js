@@ -8,6 +8,8 @@ export const createTransaction = async (req, res) => {
     const { item_id } = req.params;
     const userId = req.user._id;
 
+    const invoice_id = "INV-" + Math.random().toString(36).slice(2).toUpperCase();
+
     const item = await Item.findById(item_id);
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
@@ -17,6 +19,7 @@ export const createTransaction = async (req, res) => {
 
     const transaction = await Transaction.create({
       userId,
+      invoiceId: invoice_id,
       itemId: item_id,
       itemPrice: total,
     });
@@ -48,8 +51,6 @@ export const midtransCallback = async (req, res) => {
       return res.status(400).json({ message: "Invalid order ID" });
     }
 
-    const invoice_id = "INV-" + Math.random().toString(36).slice(2).toUpperCase();
-
     if (body.status_code === "200") {
       const transaction = await Transaction.findOne({ _id: body.order_id });
 
@@ -61,7 +62,6 @@ export const midtransCallback = async (req, res) => {
 
       transaction.status = "success";
       transaction.payment_method = payment_type;
-      transaction.invoiceId = invoice_id;
       await transaction.save();
 
       console.log(

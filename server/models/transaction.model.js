@@ -20,6 +20,7 @@ const transactionSchema = new mongoose.Schema(
       default: "pending",
     },
     game_uid: { type: String },
+    phone_number: { type: String },
     payment_method: { type: String },
     midtransToken: { type: String },
     midtransUrl: { type: String },
