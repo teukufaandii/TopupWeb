@@ -8,6 +8,7 @@ import {
   LucideClock,
   Printer,
   RefreshCcw,
+  Wallet,
 } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -39,6 +40,10 @@ const InvoiceDetail = () => {
   ) {
     return <ErrorCard errorType="data_not_found" />;
   }
+
+  // const handlePayment = () => {
+  //   router.push(`${transactionDetails.midtransUrl}`);
+  // };
 
   return (
     <div className="max-w-screen-2xl mx-auto py-3">
@@ -227,6 +232,32 @@ const InvoiceDetail = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+                <div>
+                  {transactionDetails.status === "success" ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-row gap-2">
+                        <div className="flex flex-col gap-2">
+                          <span className="text-sm font-semibold">
+                            Pembayaran Berhasil
+                          </span>
+                          <span className="text-xs font-normal opacity-70">
+                            Pembayaran anda telah berhasil dilakukan. Silahkan
+                            cek email anda untuk mendapatkan informasi lebih
+                            lanjut.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      className="bg-green-500 text-white rounded-lg py-2 px-4 flex items-center gap-2"
+                      onClick={handlePayment}
+                    >
+                      <Wallet className="w-4 h-4 text-white" />
+                      <span className="font-medium">Bayar Sekarang</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

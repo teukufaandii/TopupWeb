@@ -5,8 +5,9 @@ import { debounce } from "lodash";
 
 export const useTransactionContext = create((set, get) => ({
   transactionDetails: [],
-  loading: false,
+  transactionLoading: false,
   error: null,
+  success: null,
 
   getTransactionByInvoice: async (invoiceId) => {
     try {
@@ -19,6 +20,36 @@ export const useTransactionContext = create((set, get) => ({
         loading: false,
         error: error.response?.data?.message || "An error occurred",
         transactionDetails: null,
+      });
+    }
+  },
+
+  createTransaction: async ({
+    itemId,
+    gameUid,
+    phoneNumber,
+    quantity,
+    server,
+  }) => {
+    try {
+      set({ transactionLoading: true, error: null });
+      const res = await axios.post(`/transactions/${itemId}`, {
+        game_uid: gameUid,
+        phone_number: phoneNumber,
+        quantity,
+        game_server: server,
+      });
+      set({
+        transactionDetails: res.data.midtransTransaction,
+        success: true,
+        transactionLoading: false,
+      });
+    } catch (error) {
+      set({
+        transactionLoading: false,
+        error: error.response?.data?.message || "An error occurred",
+        transactionDetails: null,
+        success: false,
       });
     }
   },

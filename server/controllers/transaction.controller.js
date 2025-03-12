@@ -6,22 +6,28 @@ import fetch from "node-fetch";
 export const createTransaction = async (req, res) => {
   try {
     const { item_id } = req.params;
+    const { phone_number, game_uid, game_server, quantity } = req.body; 
     const userId = req.user._id;
 
-    const invoice_id = "INV-" + Math.random().toString(36).slice(2).toUpperCase();
+    const invoice_id =
+      "INV-" + Math.random().toString(36).slice(2).toUpperCase();
 
     const item = await Item.findById(item_id);
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
     }
 
-    const total = calculateTotalPrice(item);
+    const total = calculateTotalPrice(item, quantity);
 
     const transaction = await Transaction.create({
       userId,
       invoiceId: invoice_id,
       itemId: item_id,
       itemPrice: total,
+      quantity,
+      game_uid,
+      phone_number,
+      game_server,
     });
 
     const midtransResponse = await createMidtransTransaction(
@@ -30,10 +36,19 @@ export const createTransaction = async (req, res) => {
       req.user
     );
 
+    const midtransTransaction = {
+      midtransResponse,
+      transaction,
+    };
+
+    await transaction.updateOne({
+      midtransToken: midtransResponse.token,
+      midtransUrl: midtransResponse.redirect_url,
+    });
+
     res.status(201).json({
       message: "Transaction created successfully",
-      midtransResponse,
-      transaction
+      midtransTransaction,
     });
   } catch (error) {
     console.error("Error creating transaction:", error);
@@ -110,15 +125,18 @@ export const getInvoiceById = async (req, res) => {
   }
 };
 
-const calculateTotalPrice = (item) => {
+const calculateTotalPrice = (item, quantity) => {
+  let totalPrice = item.price * quantity;
+
   if (item.isDiscount) {
     if (item.discount === "flat") {
-      return item.price - item.discountValue;
+      totalPrice -= item.discountValue * quantity;
     } else if (item.discount === "percentage") {
-      return item.price - (item.price * item.discountValue) / 100;
+      totalPrice -= (item.price * item.discountValue * quantity) / 100;
     }
   }
-  return item.price;
+
+  return totalPrice;
 };
 
 const createMidtransTransaction = async (transaction, item, user) => {
