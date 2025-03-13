@@ -1,7 +1,15 @@
+"use client";
 import { LucideTextSearch } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 export default function page() {
+  const router = useRouter();
+  const [invoice, setInvoice] = React.useState("");
+  const handleSearchInvoice = (e) => {
+    e.preventDefault();
+    router.push(`/transaction/${invoice}`);
+  };
   return (
     <div className="relative w-full bg-gray-800 py-4 px-3 h-screen">
       <div className="m-4 rounded-3xl bg-primary/10 max-w-screen-2xl mx-auto px-5 py-3">
@@ -10,7 +18,10 @@ export default function page() {
           <p className="text-sm font-medium md:text-base">
             Lihat detail pembelian kamu menggunakan nomor Invoice.
           </p>
-          <form className="mt-8 w-full max-w-xl rounded-3xl bg-background p-6 text-left shadow-md">
+          <form
+            onSubmit={handleSearchInvoice}
+            className="mt-8 w-full max-w-xl rounded-3xl bg-background p-6 text-left shadow-md"
+          >
             <h3 className="text-sm font-semibold">
               Cari detail pembelian kamu disini
             </h3>
@@ -18,6 +29,9 @@ export default function page() {
               <div className="relative">
                 <div className="flex flex-col items-start">
                   <input
+                    name="invoice"
+                    value={invoice}
+                    onChange={(e) => setInvoice(e.target.value)}
                     className="relative block w-full appearance-none rounded-lg border border-border bg-input px-3 py-2 text-xs text-foreground placeholder-muted-foreground focus:z-10 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-75 h-10"
                     placeholder="Masukkan nomor invoice"
                     type="text"

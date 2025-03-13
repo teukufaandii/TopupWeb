@@ -1,7 +1,5 @@
 import axios from "../lib/axios";
 import { create } from "zustand";
-import { toast } from "react-hot-toast";
-import { debounce } from "lodash";
 
 export const useTransactionContext = create((set, get) => ({
   transactionDetails: [],
@@ -13,7 +11,6 @@ export const useTransactionContext = create((set, get) => ({
     try {
       set({ loading: true, error: null });
       const res = await axios.get(`/transactions/invoice/${invoiceId}`);
-      console.log("API Response:", res.data);
       set({ transactionDetails: res.data.invoice, loading: false });
     } catch (error) {
       set({

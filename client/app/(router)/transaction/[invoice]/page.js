@@ -11,20 +11,24 @@ import {
   Wallet,
 } from "lucide-react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import React, { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import React, { useEffect, useRef } from "react";
 
 const InvoiceDetail = () => {
   const params = useParams();
+  const router = useRouter();
+
+  const fetched = useRef(false);
 
   const { transactionDetails, getTransactionByInvoice, loading, error } =
     useTransactionContext();
 
   useEffect(() => {
-    if (params.invoice) {
+    if (params.invoice && !fetched.current) {
       getTransactionByInvoice(params.invoice);
+      fetched.current = true;
     }
-  }, [params.invoice, getTransactionByInvoice]);
+  }, [params.invoice]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -41,9 +45,9 @@ const InvoiceDetail = () => {
     return <ErrorCard errorType="data_not_found" />;
   }
 
-  // const handlePayment = () => {
-  //   router.push(`${transactionDetails.midtransUrl}`);
-  // };
+  const handlePayment = () => {
+    router.push(`${transactionDetails.midtransUrl}`);
+  };
 
   return (
     <div className="max-w-screen-2xl mx-auto py-3">
@@ -93,7 +97,7 @@ const InvoiceDetail = () => {
                       }`}
                     >
                       <span className="text-white font-bold text-sm">
-                        {transactionDetails.status}
+                        {transactionDetails.status.toUpperCase()}
                       </span>
                     </div>
                   </div>

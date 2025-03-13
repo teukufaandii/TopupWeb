@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useGameContext } from "@/app/(store)/useGameContext";
 import Image from "next/image";
@@ -183,9 +183,16 @@ const GameDetailPage = () => {
   const router = useRouter();
   const { game, loading, getGameBySlug } = useGameContext();
   const { user } = useUserContext();
-  const { createTransaction, transactionDetails, success, error, transactionLoading } =
-    useTransactionContext();
+  const {
+    createTransaction,
+    transactionDetails,
+    success,
+    error,
+    transactionLoading,
+  } = useTransactionContext();
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+
+  const ref = useRef(false);
 
   // State
   const [selectedItem, setSelectedItem] = useState(null);
@@ -198,12 +205,12 @@ const GameDetailPage = () => {
   const imagePlaceholder =
     "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=";
 
-  // Effects
   useEffect(() => {
     if (params.slug) {
       getGameBySlug(params.slug);
+      ref.current = true;
     }
-  }, [params.slug, getGameBySlug]);
+  }, [params.slug]);
 
   useEffect(() => {
     if (success === true) {
@@ -213,7 +220,6 @@ const GameDetailPage = () => {
     }
   }, [success, error, router, transactionDetails]);
 
-  // Event handlers
   const handleQuantityChange = (value) => {
     const newQuantity = Number(value);
     if (!isNaN(newQuantity) && newQuantity >= 1) {
@@ -335,8 +341,8 @@ const GameDetailPage = () => {
     return <LoadingSkeleton />;
   }
 
-  if(transactionLoading){
-    return <LoadingSkeleton />
+  if (transactionLoading) {
+    return <LoadingSkeleton />;
   }
 
   if (!game) {
