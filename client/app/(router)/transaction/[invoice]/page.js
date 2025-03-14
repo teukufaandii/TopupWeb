@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 
@@ -97,7 +98,7 @@ const InvoiceDetail = () => {
                       }`}
                     >
                       <span className="text-white font-bold text-sm">
-                        {transactionDetails.status.toUpperCase()}
+                        {transactionDetails.status}
                       </span>
                     </div>
                   </div>
@@ -229,7 +230,7 @@ const InvoiceDetail = () => {
                           </div>
                           <div className="flex flex-row justify-center sm:justify-start w-full flex-1 bg-[#ffffff] p-2 text-lightColor font-semibold">
                             <span className="text-xs font-semibold text-black">
-                              {transactionDetails.status.toUpperCase()}
+                              {transactionDetails.status}
                             </span>
                           </div>
                         </div>
@@ -254,13 +255,13 @@ const InvoiceDetail = () => {
                       </div>
                     </div>
                   ) : (
-                    <button
-                      className="bg-green-500 text-white rounded-lg py-2 px-4 flex items-center gap-2"
-                      onClick={handlePayment}
+                    <Link
+                      className="bg-green-500 text-white rounded-lg py-2 px-4 flex items-center gap-2 w-fit"
+                      href={`${transactionDetails.midtransUrl}`}
                     >
                       <Wallet className="w-4 h-4 text-white" />
                       <span className="font-medium">Bayar Sekarang</span>
-                    </button>
+                    </Link>
                   )}
                 </div>
               </div>

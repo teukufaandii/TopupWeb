@@ -29,6 +29,6 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.10.0",
     "slugify": "^1.6.6",
-    "twilio": "^5.4.3"
+    "twilio": "^5.5.0"
   }
 }

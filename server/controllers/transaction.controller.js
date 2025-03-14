@@ -2,11 +2,12 @@ import mongoose from "mongoose";
 import Item from "../models/item.model.js";
 import Transaction from "../models/transaction.model.js";
 import fetch from "node-fetch";
+import whatsAppService from "../lib/whatsappService.js";
 
 export const createTransaction = async (req, res) => {
   try {
     const { item_id } = req.params;
-    const { phone_number, game_uid, game_server, quantity } = req.body; 
+    const { phone_number, game_uid, game_server, quantity } = req.body;
     const userId = req.user._id;
 
     const invoice_id =
@@ -67,7 +68,9 @@ export const midtransCallback = async (req, res) => {
     }
 
     if (body.status_code === "200") {
-      const transaction = await Transaction.findOne({ _id: body.order_id });
+      const transaction = await Transaction.findOne({
+        _id: body.order_id,
+      }).populate("itemId");
 
       if (!transaction) {
         return res.status(404).json({ message: "Transaction not found" });
@@ -79,10 +82,9 @@ export const midtransCallback = async (req, res) => {
       transaction.payment_method = payment_type;
       await transaction.save();
 
-      console.log(
-        "Transaction status updated to completed for transaction ID:",
-        body.order_id
-      );
+      const notificationResult =
+        await whatsAppService.sendPaymentSuccessNotification(transaction);
+      console.log("WhatsApp notification result:", notificationResult);
 
       return res
         .status(200)
