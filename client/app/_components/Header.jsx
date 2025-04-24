@@ -27,47 +27,70 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const inputRef = useRef(null);
+  const avatarRef = useRef(null);
+  const searchContainerRef = useRef(null);
 
+  const filteredGames = useMemo(() => game, [game]);
+
+  // Focus input on searchQuery change
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    inputRef.current?.focus();
   }, [searchQuery]);
 
+  // Search debounce
   useEffect(() => {
     const delay = setTimeout(() => {
       searchGame(searchQuery);
     }, 500);
-
     return () => clearTimeout(delay);
   }, [searchQuery, searchGame]);
 
-  const filteredGames = useMemo(() => game, [game]);
-
+  // Handle scroll
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Control body overflow based on menu state
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "unset";
     return () => (document.body.style.overflow = "unset");
   }, [isMenuOpen]);
 
+  // Reset search when query is empty
   useEffect(() => {
     if (!searchQuery.trim()) {
       searchGame("");
-    } else {
-      searchGame(searchQuery);
     }
   }, [searchQuery, searchGame]);
 
+  // Close mobile UI elements on route change
   useEffect(() => {
     setIsMobileSearchOpen(false);
     setIsMenuOpen(false);
+    setIsOpen(false);
+    setIsSearchFocused(false);
   }, [pathname]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (avatarRef.current && !avatarRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+      
+      // Close search results when clicking outside search container
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setIsSearchFocused(false);
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const menuList = [
     { id: 1, name: "Home", icon: Home, href: "/" },
@@ -75,18 +98,15 @@ const Header = () => {
     { id: 3, name: "Cek Transaksi", icon: SearchIcon, href: "/transaction" },
   ];
 
-  const UserAvatar = ({ className = "" }) =>
+  const UserAvatar = ({ className = "" }) => (
     user?.image ? (
-      <Image
-        src={user.image}
-        alt={user.username}
-        width={24}
-        height={24}
-        className={`rounded-full object-cover ${className}`}
-      />
+      <div className={`relative w-full h-full rounded-full overflow-hidden ${className}`}>
+        <Image src={user.image} alt={user.username} fill className="object-cover" />
+      </div>
     ) : (
       <User className={`text-gray-500 ${className}`} />
-    );
+    )
+  );
 
   const SearchBar = () => (
     <div className="flex w-full gap-2 border rounded-md p-2 bg-transparent">
@@ -98,6 +118,7 @@ const Header = () => {
         placeholder="Cari Game"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+        onFocus={() => setIsSearchFocused(true)}
       />
     </div>
   );
@@ -164,22 +185,18 @@ const Header = () => {
           <p className="text-sm text-gray-400">{user.email}</p>
           <p className="text-sm text-gray-400">{user.phoneNumber}</p>
           <hr className="my-2 border-gray-600" />
-          <button className="w-full text-left py-1 px-2 text-gray-300 hover:text-green-300">
-            <Link href="/account" className="flex items-center gap-2">
-              <div className="flex items-center">
-                <User2 className="mr-2" size={16} />
-                Akun
-              </div>
-            </Link>
-          </button>
+          <Link href="/account" className="block w-full">
+            <button className="w-full text-left py-1 px-2 text-gray-300 hover:text-green-300 flex items-center">
+              <User2 className="mr-2" size={16} />
+              Akun
+            </button>
+          </Link>
           <button
             onClick={logout}
-            className="w-full text-left py-1 px-2 text-red-500 hover:text-red-400"
+            className="w-full text-left py-1 px-2 text-red-500 hover:text-red-400 flex items-center"
           >
-            <div className="flex items-center">
-              <LogOut className="mr-2" size={16} />
-              Logout
-            </div>
+            <LogOut className="mr-2" size={16} />
+            Logout
           </button>
         </>
       )}
@@ -195,16 +212,17 @@ const Header = () => {
       >
         <div className="max-w-screen-2xl mx-auto flex justify-between gap-5 items-center px-5">
           {/* LOGO */}
-          <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-green-400">
-              GameStore
-            </Link>
-          </div>
+          <Link href="/" className="text-2xl font-bold text-green-400">
+            GameStore
+          </Link>
 
           {/* Search Box (Desktop Only) */}
-          <div className="hidden lg:flex w-1/2 relative">
+          <div 
+            className="hidden lg:flex w-1/2 relative" 
+            ref={searchContainerRef}
+          >
             <SearchBar />
-            {searchQuery && <SearchResults />}
+            {searchQuery && isSearchFocused && <SearchResults />}
           </div>
 
           {/* Mobile Controls */}
@@ -216,12 +234,11 @@ const Header = () => {
             >
               <Search className="h-6 w-6" />
             </Button>
-            <Button variant="ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+            <Button 
+              variant="ghost" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
 
@@ -237,7 +254,7 @@ const Header = () => {
               >
                 <div className="flex items-center gap-2 px-2">
                   <menu.icon className="h-5 w-5" />
-                  <span className="text-gray-300">{menu.name}</span>
+                  <span>{menu.name}</span>
                 </div>
               </Link>
             ))}
@@ -246,9 +263,9 @@ const Header = () => {
           {/* User Icon / Login Buttons (Desktop) */}
           <div className="hidden lg:flex items-center gap-4">
             {user ? (
-              <div className="relative">
+              <div className="relative" ref={avatarRef}>
                 <div
-                  className="border rounded-full p-2 bg-slate-50 cursor-pointer w-10 h-10 flex items-center justify-center"
+                  className="border rounded-full bg-slate-50 cursor-pointer w-10 h-10 flex items-center justify-center"
                   onClick={() => setIsOpen(!isOpen)}
                 >
                   <UserAvatar />
@@ -271,9 +288,12 @@ const Header = () => {
 
       {/* Mobile Search Bar */}
       {isMobileSearchOpen && (
-        <div className="lg:hidden fixed top-16 left-0 w-full bg-gray-800 p-4 z-50">
+        <div 
+          className="lg:hidden fixed top-16 left-0 w-full bg-gray-800 p-4 z-50"
+          ref={searchContainerRef}
+        >
           <SearchBar />
-          {searchQuery && <SearchResults />}
+          {searchQuery && isSearchFocused && <SearchResults />}
         </div>
       )}
 
