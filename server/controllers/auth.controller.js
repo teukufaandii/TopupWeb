@@ -3,6 +3,10 @@ import User from "../models/user.model.js";
 import { redis } from "../lib/redis.js";
 import jwt from "jsonwebtoken";
 import cloudinary from "../lib/cloudinary.js";
+import {
+  sendResetPasswordEmail,
+  sendVerificationEmail,
+} from "../lib/nodeMailer.js";
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign(
@@ -262,11 +266,9 @@ export const changePassword = async (req, res) => {
     }
 
     if (currentPassword === newPassword) {
-      return res
-        .status(400)
-        .json({
-          message: "New password cannot be the same as current password",
-        });
+      return res.status(400).json({
+        message: "New password cannot be the same as current password",
+      });
     }
 
     const user = await User.findById(req.user._id);
@@ -368,4 +370,139 @@ export const checkEmailVerified = async (req, res) => {
     console.log("Error in checkEmailVerified controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
+};
+
+export const sendVerificationToken = async (req, res) => {
+  const user = req.user;
+  try {
+    if (!user.email) {
+      return res.status(400).json({ message: "Email not found" });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: "Email already verified" });
+    }
+
+    const token = tokenGenerator();
+
+    user.verificationToken = token;
+    await user.save();
+
+    await sendVerificationEmail(user.email, token);
+
+    res.status(200).json({ message: "Verification token sent successfully" });
+  } catch (error) {
+    console.log("Error in sendVerificationToken controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const sendResetPasswordRequest = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (user.resetPasswordToken && user.resetPasswordExpires > Date.now()) {
+      return res.status(400).json({
+        message:
+          "You are already have a reset password request, please check your email",
+      });
+    }
+
+    if (user.resetPasswordToken && user.resetPasswordExpires < Date.now()) {
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const resetToken = tokenGenerator();
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpires = Date.now() + 3600000;
+      await user.save();
+
+      await sendResetPasswordEmail(user.email, resetToken);
+    }
+
+    res.status(200).json({
+      message: "Reset password email sent successfully",
+    });
+  } catch (error) {
+    console.log("Error in sendResetPasswordRequest controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+    const user = req.user;
+
+    const userToken = await User.findOne({
+      email: user.email,
+      verificationToken: token,
+    });
+
+    if (userToken) {
+      user.isVerified = true;
+      user.verificationToken = null;
+      await user.save();
+
+      res.status(200).json({
+        message: "Email verified successfully",
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid token brok" });
+    }
+  } catch (error) {
+    console.log("Error in verifyEmail controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const changeForgotPassword = async (req, res) => {
+  const { token } = req.query;
+  const { newPassword, confirmPassword } = req.body;
+  try {
+    if (!token) {
+      return res.status(400).json({ message: "Token is required or invalid" });
+    }
+
+    if (!newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.log("Error in changeForgotPassword controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const tokenGenerator = () => {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let token = "";
+  for (let i = 0; i < 6; i++) {
+    token += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return token;
 };
